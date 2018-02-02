@@ -201,7 +201,7 @@ class Crawler
 
         $this->startCrawlingQueue();
 
-        $this->crawlObserver->finishedCrawling();
+        return $this->crawlObserver->finishedCrawling();
     }
 
     protected function startCrawlingQueue()
