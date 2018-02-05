@@ -6,6 +6,7 @@ use Generator;
 use Tree\Node\Node;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Client;
+use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Collection;
@@ -61,6 +62,28 @@ class Crawler
         RequestOptions::TIMEOUT => 10,
         RequestOptions::ALLOW_REDIRECTS => false,
     ];
+
+    public static function createLoggedIn(string $loginPostUrl, array $formParams)
+    {
+        $cookieJar = new \GuzzleHttp\Cookie\CookieJar();
+
+        $options = [
+            RequestOptions::COOKIES => $cookieJar,
+            RequestOptions::CONNECT_TIMEOUT => 10,
+            RequestOptions::TIMEOUT => 10,
+            RequestOptions::ALLOW_REDIRECTS => false,
+        ];
+
+        $client = new Client($options);
+
+        $client->post($loginPostUrl, [
+                'form_params' => $formParams,
+                'cookies' => $cookieJar
+            ]
+        );
+
+        return new static($client);
+    }
 
     /**
      * @param array $clientOptions
