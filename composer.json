@@ -1,14 +1,8 @@
 {
     "name": "dmelearn/crawler",
-    "description": "Crawl all internal links found on a website based on spatie/crawler 2.x",
+    "description": "Crawl all internal links found on a website. Originally based on spatie/crawler 2.x",
     "homepage": "https://github.com/ajdunn2/crawler",
     "license": "MIT",
-    "authors": [
-        {
-            "name": "Freek Van der Herten",
-            "email": "freek@spatie.be"
-        }
-    ],
     "require": {
         "php": ">=7.0",
         "symfony/dom-crawler": "^3.0|^4.0",
