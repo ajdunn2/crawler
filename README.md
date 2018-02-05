@@ -7,10 +7,23 @@ This package was based on `spatie/crawler` v2.7.1. Spatie is a webdesign agency 
 
 ## Usage
 
-The crawler can be instantiated like this
+The crawler can be instantiated like this:
 
 ```php
 Crawler::create()
+    ->setCrawlObserver(<implementation of \Dmelearn\Crawler\CrawlObserver>)
+    ->startCrawling($url);
+```
+
+Or if a site requires logging in (via a POST request) and using a cookie before being crawled:
+
+```php
+Crawler::createLoggedIn(
+    $loginUrl,
+    [
+        'username' => 'myusername',
+        'password' => 'mypassword'
+    ])
     ->setCrawlObserver(<implementation of \Dmelearn\Crawler\CrawlObserver>)
     ->startCrawling($url);
 ```
