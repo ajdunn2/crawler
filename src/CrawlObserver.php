@@ -27,7 +27,7 @@ interface CrawlObserver
     /**
      * Called when the crawl has ended.
      *
-     * @return void
+     * @return mixed
      */
     public function finishedCrawling();
 }

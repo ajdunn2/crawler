@@ -50,7 +50,7 @@ class Crawler
     /** @var \Tree\Node\Node */
     protected $depthTree;
 
-    /** @var false */
+    /** @var bool */
     protected $executeJavaScript = false;
 
     /** @var string|null */
@@ -63,18 +63,36 @@ class Crawler
         RequestOptions::ALLOW_REDIRECTS => false,
     ];
 
-    public static function createLoggedIn(string $loginPostUrl, array $formParams)
+    public function __construct(Client $client, int $concurrency = 10)
+    {
+        $this->client = $client;
+
+        $this->concurrency = $concurrency;
+
+        $this->crawlProfile = new CrawlAllUrls();
+
+        $this->crawlQueue = new CollectionCrawlQueue();
+    }
+
+    /**
+     * Create a Crawl that first starts with a login post to a url and then keeps the cookie for all further crawls.
+     *
+     * @param string $loginPostUrl
+     * @param array $formParams
+     * @param array $clientOptions
+     * @return static
+     */
+    public static function createLoggedIn(string $loginPostUrl, array $formParams, array $clientOptions = [])
     {
         $cookieJar = new \GuzzleHttp\Cookie\CookieJar();
 
-        $options = [
-            RequestOptions::COOKIES => $cookieJar,
-            RequestOptions::CONNECT_TIMEOUT => 10,
-            RequestOptions::TIMEOUT => 10,
-            RequestOptions::ALLOW_REDIRECTS => false,
-        ];
+        $clientOptions = (count($clientOptions))
+            ? $clientOptions
+            : self::$defaultClientOptions;
 
-        $client = new Client($options);
+        $clientOptions[RequestOptions::COOKIES] = $cookieJar;
+
+        $client = new Client($clientOptions);
 
         $client->post($loginPostUrl, [
                 'form_params' => $formParams,
@@ -86,8 +104,9 @@ class Crawler
     }
 
     /**
-     * @param array $clientOptions
+     * Create a regular crawl
      *
+     * @param array $clientOptions
      * @return static
      */
     public static function create(array $clientOptions = [])
@@ -99,17 +118,6 @@ class Crawler
         $client = new Client($clientOptions);
 
         return new static($client);
-    }
-
-    public function __construct(Client $client, int $concurrency = 10)
-    {
-        $this->client = $client;
-
-        $this->concurrency = $concurrency;
-
-        $this->crawlProfile = new CrawlAllUrls();
-
-        $this->crawlQueue = new CollectionCrawlQueue();
     }
 
     /**
@@ -207,6 +215,7 @@ class Crawler
 
     /**
      * @param \Dmelearn\Crawler\Url|string $baseUrl
+     * @return mixed
      */
     public function startCrawling($baseUrl)
     {
@@ -307,7 +316,7 @@ class Crawler
                 return $this->crawlQueue->has($url);
             })
             ->each(function (Url $url) use ($foundOnUrl) {
-                $node = $this->addtoDepthTree($this->depthTree, (string) $url, $foundOnUrl);
+                $node = $this->addToDepthTree($this->depthTree, (string) $url, $foundOnUrl);
 
                 if (! $this->shouldCrawl($node)) {
                     return;
@@ -351,7 +360,7 @@ class Crawler
         return $url->removeFragment();
     }
 
-    protected function addtoDepthTree(Node $node, string $url, string $parentUrl)
+    protected function addToDepthTree(Node $node, string $url, string $parentUrl)
     {
         $returnNode = null;
 
@@ -364,9 +373,9 @@ class Crawler
         }
 
         foreach ($node->getChildren() as $currentNode) {
-            $returnNode = $this->addtoDepthTree($currentNode, $url, $parentUrl);
+            $returnNode = $this->addToDepthTree($currentNode, $url, $parentUrl);
 
-            if (! is_null($returnNode)) {
+            if ( ! is_null($returnNode)) {
                 break;
             }
         }
