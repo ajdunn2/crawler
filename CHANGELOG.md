@@ -4,8 +4,11 @@ All notable changes to `dmelearn/crawler` will be documented in this file.
 
 ### Release
 
-## 2.8.X - 2018-XX-XX
+## 2.8.0 - 2018-02-09
 - Original Release
+- Keep PHP 7.0 Support
+- Alternative create function for sites with login
+- finishedCrawling function now returns data from crawl
 
 ### Original `spatie/crawler` releases
 
